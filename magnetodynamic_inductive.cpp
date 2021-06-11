@@ -8,7 +8,8 @@
 // MFEM is free software; you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License (as published by the Free
 // Software Foundation) version 2.1 dated February 1999.
-// mpirun -np 4 valgrind magnetodynamic_inductive -m torus2.msh --petscopts rc_ex10p_mfop
+
+// mpirun -np 4 valgrind magnetodynamic_inductive -m torus2.msh --petscopts rc_ex10p_jfnk
 
 #include "mfem.hpp"
 #include <memory>
@@ -624,12 +625,9 @@ void  MagnetodynamicSolver::ImplicitSolve(double dt, const Vector &H, Vector &dH
    H_t2->ProjectBdrCoefficient(*H_BCCoef_, ess_bdr);   //    add Dirichlet BC into solution vector 
    Vector H_rhs(H.Size()) ; // empty vector 
    H_rhs = H;
-   cout << "H_rhs norm" << H_rhs.Norml2() << endl;
+   cout << "H_rhs norm" << H_rhs.Norml2() << endl; // ensure there is not uninitialized values
    HypreParVector  *H_par= H_t2->GetTrueDofs();// initilized the solution vector with BC 
    cout << "BC values initialized " << endl;  
-    
-  // Vector h_lhs= *H_par->GlobalVector();; // the x vector LHS
-
    Hform_oper->SetParameters(dt, &H_rhs);  
    Vector zero;
    petsc_solver->Mult(zero,*H_par); // Mult(b,x);
